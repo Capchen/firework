@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="demo"></canvas>
+  <script>
+    const canvas = document.getElementById('demo');
+    var width = window.innerWidth;
+    var height = 260;
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.backgroundColor = 'black';
+    var points = [];
+    var mouse = {
+        x: 0,
+        y: 9999
+    };
+    var animationId;
+    const ctx = canvas.getContext('2d');
+    function Point(x, y, speed, width, color) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.color = color;
+        this.alpha = Math.random() - .1;
+        this.speed = speed;
+        this.active = true;
+        this.physx = function() {
+            this.y += this.speed;
+            if (this.y > canvas.height)
+                this.kill()
+        }
+        ;
+        this.kill = function() {
+            points.splice(points.indexOf(this), 1);
+            this.active = false
+        }
+        ;
+        this.draw = function() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.width, 0, Math.PI * 2, true);
+            ctx.fillStyle = this.color;
+            ctx.lineWidth = this.width;
+            ctx.save();
+            ctx.globalAlpha = this.alpha;
+            ctx.fill();
+            ctx.restore()
+        }
+    }
+    function drawFirework() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (var i = 0; i < 4; i++) {
+            var posX = mouse.x + Math.random() * 10;
+            var posY = mouse.y + Math.random() * 10;
+            points.push(new Point(posX,posY,1 + Math.random() * 2, 8,"white"))
+        }
+        for (var i in points) {
+            if (points[i].active) {
+                points[i].draw();
+                points[i].physx()
+            }
+        }
+        animationId = requestAnimationFrame(drawFirework)
+    }
+
+
+    canvas.addEventListener('mousemove', function(e) {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+    });
+    canvas.addEventListener('mouseout', function(e) {
+        mouse.x = 0;
+        mouse.y = 9999;
+        isAnimating = false;
+    });
+    drawFirework();
+    drawSnowflake()
+  </script>
+</body>
+</html>
